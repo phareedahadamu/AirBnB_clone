@@ -15,7 +15,8 @@ from models import storage
 class HBNBCommand(cmd.Cmd):
     """ Features of HBNB command interpreter"""
     prompt = "(hbnb) "
-    class_list = ["BaseModel"]
+    class_list = ["BaseModel", "User", "State", "City", "Amenity", "Place",
+                  "Review"]
 
     def do_EOF(self, line):
         """Exits the program"""
