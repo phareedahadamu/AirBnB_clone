@@ -76,12 +76,11 @@ class TestHBNBCommand_help(unittest.TestCase):
             self.assertFalse(HBNBCommand().onecmd("help all"))
             self.assertEqual(h, output.getvalue().strip())
 
-    """def test_help_count(self):
-        h = ("Usage: count <class> or <class>.count()\n        "
-             "Retrieve the number of instances of a given class.")
+    def test_help_count(self):
+        h = ("Retrieves the number of instances of a class")
         with patch("sys.stdout", new=StringIO()) as output:
             self.assertFalse(HBNBCommand().onecmd("help count"))
-            self.assertEqual(h, output.getvalue().strip())"""
+            self.assertEqual(h, output.getvalue().strip())
 
     def test_help_update(self):
         h = ("Updates an instance based on the class name and id by adding or"
@@ -94,7 +93,7 @@ class TestHBNBCommand_help(unittest.TestCase):
     def test_help(self):
         h = ("Documented commands (type help <topic>):\n"
              "========================================\n"
-             "EOF  all  create  destroy  help  quit  show  update")
+             "EOF  all  count  create  destroy  help  quit  show  update")
         with patch("sys.stdout", new=StringIO()) as output:
             self.assertFalse(HBNBCommand().onecmd("help"))
             self.assertEqual(h, output.getvalue().strip())
@@ -1496,8 +1495,8 @@ class TestHBNBCommand_update(unittest.TestCase):
         self.assertEqual(9.8, test_dict["latitude"])"""
 
 
-"""class TestHBNBCommand_count(unittest.TestCase):
-    """"""Unittests for testing count method of HBNB comand interpreter.""""""
+class TestHBNBCommand_count(unittest.TestCase):
+    """Unittests for testing count method of HBNB comand interpreter."""
 
     @classmethod
     def setUp(self):
@@ -1558,7 +1557,7 @@ class TestHBNBCommand_update(unittest.TestCase):
             self.assertFalse(HBNBCommand().onecmd("create Review"))
         with patch("sys.stdout", new=StringIO()) as output:
             self.assertFalse(HBNBCommand().onecmd("Review.count()"))
-            self.assertEqual("1", output.getvalue().strip())"""
+            self.assertEqual("1", output.getvalue().strip())
 
 
 if __name__ == "__main__":

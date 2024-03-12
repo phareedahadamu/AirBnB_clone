@@ -132,12 +132,26 @@ class HBNBCommand(cmd.Cmd):
                     my_obj.__dict__[args[2]] = args[3]
                 storage.save()
 
+    def do_count(self, line):
+        """Retrieves the number of instances of a class"""
+        args = shlex.split(line)
+        if len(args) == 0:
+            print("** class name missing **")
+        else:
+            all_objs = storage.all()
+            count = 0
+            for value in all_objs.values():
+                if value.__class__.__name__ == args[0]:
+                    count = count + 1
+            print(count)
+
     def default(self, line):
         my_args = {
                 "all": self.do_all,
                 "show": self.do_show,
                 "destroy": self.do_destroy,
-                "update": self.do_update
+                "update": self.do_update,
+                "count": self.do_count
                 }
         match = re.search(r"^.*\..+\(.*\)$", line)
         if match is not None:
