@@ -118,8 +118,8 @@ class HBNBCommand(cmd.Cmd):
                 print("** value missing **")
             else:
                 my_obj = all_objs[obj_key]
-                if args[2] in my_obj.__dict__.keys():
-                    att_type = type(my_obj.__dict__[args[2]])
+                if args[2] in my_obj.__class__.__dict__.keys():
+                    att_type = type(my_obj.__class__.__dict__[args[2]])
                     my_obj.__dict__[args[2]] = att_type(args[3])
                 else:
                     my_obj.__dict__[args[2]] = args[3]
