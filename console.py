@@ -2,6 +2,7 @@
 """ Defines a class HBNBCommand"""
 import cmd
 import shlex
+import re
 from models.base_model import BaseModel
 from models.user import User
 from models.state import State
@@ -101,6 +102,12 @@ class HBNBCommand(cmd.Cmd):
         """Updates an instance based on the class name and id by adding or
         updating attribute (save the change into the JSON file)"""
         args = shlex.split(line)
+        """if len(args) > 3:
+            if args[2][0] == "{" and args[2][len(args[2])-1] == "}":
+                if len(args[2]) == 2:
+                    del args[2]
+                else:
+                    args[2] = args[2][1:-1]"""
         if len(args) == 0:
             print("** class name missing **")
         elif args[0] not in HBNBCommand.class_list:
@@ -124,6 +131,30 @@ class HBNBCommand(cmd.Cmd):
                 else:
                     my_obj.__dict__[args[2]] = args[3]
                 storage.save()
+
+    def default(self, line):
+        my_args = {
+                "all": self.do_all,
+                "show": self.do_show,
+                "destroy": self.do_destroy,
+                "update": self.do_update
+                }
+        match = re.search(r"^.*\..+\(.*\)$", line)
+        if match is not None:
+            split_line = re.split(r"\.", line, 1)
+            class_name = split_line[0]
+            match = re.search(r"\(", split_line[1])
+            idx = match.span()
+            idx = idx[0]
+            cmd_name = split_line[1][0:idx]
+            args = split_line[1][idx+1:-1]
+            args = re.sub(r", ", " ", args)
+            args = class_name + " " + args
+            if cmd_name in my_args:
+                return my_args[cmd_name](args)
+
+        print("*** Unknown syntax: {}".format(line))
+        return False
 
 
 if __name__ == '__main__':
