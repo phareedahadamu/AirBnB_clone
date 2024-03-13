@@ -3,6 +3,7 @@
 import cmd
 import shlex
 import re
+from shlex import split
 from models.base_model import BaseModel
 from models.user import User
 from models.state import State
@@ -18,6 +19,7 @@ class HBNBCommand(cmd.Cmd):
     prompt = "(hbnb) "
     class_list = ["BaseModel", "User", "State", "City", "Amenity", "Place",
                   "Review"]
+    update_dict = {}
 
     def do_EOF(self, line):
         """Exits the program"""
@@ -101,36 +103,56 @@ class HBNBCommand(cmd.Cmd):
     def do_update(self, line):
         """Updates an instance based on the class name and id by adding or
         updating attribute (save the change into the JSON file)"""
-        args = shlex.split(line)
-        """if len(args) > 3:
-            if args[2][0] == "{" and args[2][len(args[2])-1] == "}":
-                if len(args[2]) == 2:
-                    del args[2]
-                else:
-                    args[2] = args[2][1:-1]"""
+        match = re.search(r"\{(.*?)\}", line)
+        if match is not None:
+            x = split(line[:match.span()[0]])
+            args = [i.strip(",") for i in x]
+            args.append(match.group())
+        else:
+            args = shlex.split(line)
         if len(args) == 0:
             print("** class name missing **")
-        elif args[0] not in HBNBCommand.class_list:
+            return False
+        if args[0] not in HBNBCommand.class_list:
             print("** class doesn't exist **")
-        elif len(args) == 1:
+            return False
+        if len(args) == 1:
             print("** instance id missing **")
-        elif len(args) > 1:
+            return False
+        if len(args) > 1:
             all_objs = storage.all()
             obj_key = str(args[0]) + "." + str(args[1])
             if obj_key not in all_objs:
                 print("** no instance found **")
-            elif len(args) == 2:
+                return False
+            if len(args) == 2:
                 print("** attribute name missing **")
-            elif len(args) == 3:
-                print("** value missing **")
-            else:
+                return False
+            if len(args) == 3:
+                try:
+                    type(eval(args[2])) != dict
+                except Exception:
+                    print("** value missing **")
+                    return False
+            if len(args) > 3:
                 my_obj = all_objs[obj_key]
                 if args[2] in my_obj.__class__.__dict__.keys():
                     att_type = type(my_obj.__class__.__dict__[args[2]])
                     my_obj.__dict__[args[2]] = att_type(args[3])
                 else:
                     my_obj.__dict__[args[2]] = args[3]
-                storage.save()
+            elif type(eval(args[2])) == dict:
+                my_obj = all_objs[obj_key]
+                args[2] = eval(args[2])
+                for k, v in args[2].items():
+                    if (k in my_obj.__class__.__dict__.keys() and
+                            type(my_obj.__class__.__dict__[k]) in
+                            {str, int, float}):
+                        att_type = type(my_obj.__class__.__dict__[k])
+                        my_obj.__dict__[k] = att_type(v)
+                    else:
+                        my_obj.__dict__[k] = v
+            storage.save()
 
     def do_count(self, line):
         """Retrieves the number of instances of a class"""
@@ -162,10 +184,20 @@ class HBNBCommand(cmd.Cmd):
             idx = idx[0]
             cmd_name = split_line[1][0:idx]
             args = split_line[1][idx+1:-1]
-            args = re.sub(r", ", " ", args)
-            args = class_name + " " + args
+            match = re.search(r"\{.*\}", args)
+            if match is None:
+                args = re.sub(r", ", " ", args)
+                class_name = class_name + " " + args
+            else:
+                idx = match.span()
+                a = args[:idx[0]]
+                b = args[idx[0]:idx[1]]
+                c = args[idx[1]+1:]
+                a = re.sub(r", ", " ", a)
+                c = re.sub(r", ", " ", c)
+                class_name = class_name + " " + a + " " + b + " " + c
             if cmd_name in my_args:
-                return my_args[cmd_name](args)
+                return my_args[cmd_name](class_name)
 
         print("*** Unknown syntax: {}".format(line))
         return False
